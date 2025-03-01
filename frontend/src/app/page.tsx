@@ -15,9 +15,7 @@ export default function Home() {
           priority
         />
         <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-         
-          </li>
+          <li className="mb-2 bg-[#ee7171] dark:bg-[#ee7171]">Name</li>
           <li>Save and see your changes instantly.</li>
         </ol>
 
