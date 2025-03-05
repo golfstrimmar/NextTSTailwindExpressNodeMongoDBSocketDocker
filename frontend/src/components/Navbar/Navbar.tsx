@@ -42,6 +42,15 @@ const Navbar: React.FC = () => {
               UI
             </Link>
           </li>
+          <li>
+            <Link
+              href="/auctions/new"
+              className="text-white hover:text-gray-300"
+              onClick={() => setIsOpen(false)}
+            >
+              New
+            </Link>
+          </li>
         </ul>
       </div>
     </nav>

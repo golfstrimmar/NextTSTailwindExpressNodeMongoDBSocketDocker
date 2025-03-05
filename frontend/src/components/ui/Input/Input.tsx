@@ -1,9 +1,17 @@
 "use client";
-import { useEffect, useRef } from "react";
+import React from "react";
 import styles from "./Input.module.scss";
 
 interface InputProps {
-  typeInput: "text" | "textarea"; 
+  typeInput:
+    | "text"
+    | "textarea"
+    | "number"
+    | "datetime-local"
+    | "email"
+    | "tel"
+    | "date"
+    | "time";
   data: string;
   value: string;
   onChange: (
@@ -12,14 +20,6 @@ interface InputProps {
 }
 
 const Input: React.FC<InputProps> = ({ typeInput, data, value, onChange }) => {
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (inputRef.current) {
-      inputRef.current.blur();
-    }
-  }, []);
-
   return (
     <div className={styles["input-field"]}>
       {typeInput === "textarea" ? (
@@ -32,12 +32,14 @@ const Input: React.FC<InputProps> = ({ typeInput, data, value, onChange }) => {
         />
       ) : (
         <input
-          ref={inputRef}
           id={data}
           name={data}
-          type={typeInput}
+          type={typeInput} 
           value={value}
-          onChange={onChange}
+          onChange={(e) => {
+            console.log("Input onChange:", e.target.value);
+            onChange(e);
+          }}
           required
         />
       )}
