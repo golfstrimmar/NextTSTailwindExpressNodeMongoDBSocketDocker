@@ -4,7 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="613e6e12-f52a-4337-ae3e-fb4abf043cb9" name="Changes" comment="webstorm+" />
+    <list default="true" id="613e6e12-f52a-4337-ae3e-fb4abf043cb9" name="Changes" comment="webstorm+++">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/auctions/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/auctions/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/ui/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/ui/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/ui/Select/Select.module.scss" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/ui/Select/Select.module.scss" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -46,23 +51,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;code.cleanup.on.save&quot;: &quot;true&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/WEB/NextTSTailwindExpressNodeMongoDBSocketDocker/backend/package.json&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;npm.dev --turbo.executor&quot;: &quot;Run&quot;,
-    &quot;npm.start.executor&quot;: &quot;Run&quot;,
-    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;C:\\Users\\viktor\\AppData\\Roaming\\npm\\node_modules\\prettier&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;settings.javascript.prettier&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\WebStorm 2024.2.4\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "code.cleanup.on.save": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "D:/WEB/NextTSTailwindExpressNodeMongoDBSocketDocker/backend/package.json",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "npm.dev --turbo.executor": "Run",
+    "npm.start.executor": "Run",
+    "prettierjs.PrettierConfiguration.Package": "C:\\Users\\viktor\\AppData\\Roaming\\npm\\node_modules\\prettier",
+    "settings.editor.selected.configurable": "settings.javascript.prettier",
+    "ts.external.directory.path": "D:\\WEB\\NextTSTailwindExpressNodeMongoDBSocketDocker\\frontend\\node_modules\\typescript\\lib"
   }
-}</component>
-  <component name="RunManager" selected="npm.start">
+}]]></component>
+  <component name="RunManager" selected="npm.dev --turbo">
     <configuration name="dev --turbo" type="js.build_tools.npm" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/frontend/package.json" />
       <command value="run" />
@@ -104,6 +110,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="webstorm" />
     <MESSAGE value="webstorm+" />
-    <option name="LAST_COMMIT_MESSAGE" value="webstorm+" />
+    <MESSAGE value="webstorm+++" />
+    <option name="LAST_COMMIT_MESSAGE" value="webstorm+++" />
   </component>
 </project>
