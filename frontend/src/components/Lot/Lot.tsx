@@ -12,10 +12,13 @@ interface Lot {
   imageUrl: string;
   startPrice: number;
   status: string;
+  creator: string;
 }
+
 interface LotProps {
   auction: Lot;
 }
+
 // =================================
 const Lot: React.FC<LotProps> = ({ auction }) => {
   return (
@@ -47,6 +50,9 @@ const Lot: React.FC<LotProps> = ({ auction }) => {
               Ends: {new Date(auction.endTime).toLocaleString()}
             </p>
             <p className="text-sm text-gray-500">Status: {auction.status}</p>
+            <p className="text-sm text-gray-500">
+              Creator: {auction.creator?.userName || "Unknown"}
+            </p>
             <p className="text-sm text-gray-400 mt-1">
               Created: {new Date(auction.createdAt).toLocaleDateString()}
             </p>

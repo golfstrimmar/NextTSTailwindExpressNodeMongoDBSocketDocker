@@ -33,7 +33,6 @@ const LoginPage = () => {
   const router = useRouter();
   const dispatch = useDispatch();
   const socket = useSelector((state: any) => state.socket.socket);
-
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string>("");

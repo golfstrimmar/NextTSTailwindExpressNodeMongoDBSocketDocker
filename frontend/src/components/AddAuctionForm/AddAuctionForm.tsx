@@ -10,6 +10,7 @@ import ClockUhr from "@/components/ui/ClockUhr/ClockUhr";
 import ModalMessage from "@/components/ModalMessage/ModalMessage";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, useAppSelector } from "@/app/redux/store";
+import { useRouter } from "next/navigation";
 // =================================
 
 // =================================
@@ -23,11 +24,13 @@ interface EndTime {
   lotDate: string;
   time: string;
 }
+
 const AddAuctionForm: React.FC = () => {
-  //  const user = useSelector((state: any) => state.auth.user as User);
+  const router = useRouter();
   const dispatch = useDispatch();
   const socket = useAppSelector((state: RootState) => state.socket.socket);
-  const auctions = useAppSelector((state) => state.auctions.auctions);
+  const user = useAppSelector((state) => state.auth.user); // Достаём юзера
+  const token = useAppSelector((state) => state.auth.token); // Достаём токен
   const [title, setTitle] = useState<string>("");
   const [startPrice, setStartPrice] = useState<number>(0);
   const [successMessage, setSuccessMessage] = useState<string>("");
@@ -37,7 +40,7 @@ const AddAuctionForm: React.FC = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [date, setDate] = useState<Date>(new Date());
   const [time, setTime] = useState<string>(
-    new Date().toLocaleString().slice(11, 17)
+    new Date().toLocaleString().slice(11, 17),
   );
   const [endTime, setEndTime] = useState<EndTime>({
     lotDate: new Date().toLocaleString().slice(0, 10),
@@ -73,6 +76,7 @@ const AddAuctionForm: React.FC = () => {
         setTimeout(() => {
           setOpenModalMessage(false);
           resetForm();
+          router.replace("/auctions");
         }, 2000);
       });
       socket.on("erroraddingauction", (errorMessage) => {
@@ -104,11 +108,11 @@ const AddAuctionForm: React.FC = () => {
       try {
         const imageResponse = await axios.post(
           process.env.NEXT_PUBLIC_CLOUDINARY_URL as string,
-          imageFormData
+          imageFormData,
         );
         console.log(
           "===--- imageResponse ---====",
-          imageResponse.data.secure_url
+          imageResponse.data.secure_url,
         );
         return imageResponse.data.secure_url;
       } catch (error) {
@@ -140,14 +144,14 @@ const AddAuctionForm: React.FC = () => {
 
   // ----------------------------------
   const TitleHandler = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setTitle(e.target.value);
   };
 
   // =================================
   const handlerNumberOnChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setStartPrice(e.target.value);
   };
@@ -204,7 +208,7 @@ const AddAuctionForm: React.FC = () => {
   const handleSubmit = async (
     e?:
       | React.FormEvent<HTMLFormElement>
-      | React.MouseEvent<HTMLButtonElement, MouseEvent>
+      | React.MouseEvent<HTMLButtonElement, MouseEvent>,
   ) => {
     if (e && e.preventDefault) {
       e.preventDefault();
@@ -229,11 +233,9 @@ const AddAuctionForm: React.FC = () => {
         endTime: endDateTime,
         imageUrl: imageUrl,
       };
-
-      if (socket) {
-        socket.emit("addAuction", {
-          auctionData,
-        });
+      if (socket && token) {
+        console.log("Sending auction data with token:", { auctionData, token });
+        socket.emit("addAuction", { auctionData, token }); // Добавляем токен
       }
     } catch (error) {
       console.error("Ошибка загрузки изображения:", error);

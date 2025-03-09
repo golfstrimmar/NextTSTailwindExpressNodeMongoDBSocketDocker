@@ -19,9 +19,13 @@ const auctionSchema = new mongoose.Schema(
       required: true,
     },
     status: { type: String, enum: ["active", "ended"], default: "active" },
+    creator: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User", // Ссылка на модель User
+      required: true, // Создатель обязателен
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
-
 const Auction = mongoose.model("Auction", auctionSchema);
 export default Auction;
