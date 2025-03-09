@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar/Navbar";
+import ClientWrapper from "@/components/ClientWrapper";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -27,10 +30,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Navbar />
-        <main className="max-w-7xl  px-4 lg:px-8">
-          <div className="container mx-auto">{children}</div>
-        </main>
+        <GoogleOAuthProvider clientId={googleClientId}>
+          <ClientWrapper>
+            <Navbar />
+            <main className="max-w-7xl px-4 lg:px-8 mx-auto">
+              <div className="container mx-auto p-2 md:p-0">{children}</div>
+            </main>
+          </ClientWrapper>
+        </GoogleOAuthProvider>
       </body>
     </html>
   );

@@ -1,4 +1,4 @@
-"use client"; 
+"use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Burger from "../ui/Burger/Burger";
@@ -40,6 +40,33 @@ const Navbar: React.FC = () => {
               onClick={() => setIsOpen(false)}
             >
               UI
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/auctions/new"
+              className="text-white hover:text-gray-300"
+              onClick={() => setIsOpen(false)}
+            >
+              New
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/registerPage"
+              className="text-white hover:text-gray-300"
+              onClick={() => setIsOpen(false)}
+            >
+              Register
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/loginPage"
+              className="text-white hover:text-gray-300"
+              onClick={() => setIsOpen(false)}
+            >
+              Login
             </Link>
           </li>
         </ul>

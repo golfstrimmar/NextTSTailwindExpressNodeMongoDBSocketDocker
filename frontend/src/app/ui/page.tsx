@@ -1,5 +1,5 @@
 "use client";
-import React,{ useEffect,useState} from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./Ui.module.scss";
 import Button from "@/components/ui/Button/Button";
 import Burger from "@/components/ui/Burger/Burger";
@@ -7,6 +7,12 @@ import Input from "@/components/ui/Input/Input";
 import InputCheck from "@/components/ui/InputCheck/InputCheck";
 import InputRadio from "@/components/ui/InputRadio/InputRadio";
 import Select from "@/components/ui/Select/Select";
+import Calendar from "@/components/ui/Calendar/Calendar";
+<<<<<<< HEAD
+import ClockUhr from "@/components/ui/ClockUhr/ClockUhr";
+=======
+import ClockPicker from "@/components/ClockPicker/ClockPicker";
+>>>>>>> 41f2978a853359bbea1890d228d4f1db3c169384
 
 // =======================
 
@@ -18,7 +24,17 @@ interface UiProps {
 
 const Ui: React.FC<UiProps> = () => {
   const [value, setValue] = useState<string>("");
+  const [valueNumber, setValueNumber] = useState<number>(0);
   const [valueTextarea, setValueTextarea] = useState<string>("");
+<<<<<<< HEAD
+  const [endTime, setEndTime] = useState<string>(
+    new Date().toISOString().slice(0, 16)
+  );
+=======
+    const [endTime, setEndTime] = useState<string>(
+      new Date().toISOString().slice(0, 16)
+    );
+>>>>>>> 41f2978a853359bbea1890d228d4f1db3c169384
   const [valueCheck, setValueCheck] = useState<string>("");
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [selectedOptionRadio, setSelectedOptionRadio] =
@@ -73,6 +89,48 @@ const Ui: React.FC<UiProps> = () => {
   }, [selectedOptionRadio]);
 
   // -----------------------------------
+  const handlerNumberOnChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setValueNumber(e.target.value);
+  };
+  useEffect(() => {
+    console.log(valueNumber);
+  }, [valueNumber]);
+  // =================================
+  const handleEndTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("New endTime:", e.target.value);
+<<<<<<< HEAD
+    setEndTime(e.target.value);
+  };
+  useEffect(() => {
+    console.log(endTime);
+  }, [endTime]);
+  // =================================
+  const [finishDate, setFinishDate] = useState<object>(null);
+  useEffect(() => {
+    console.log("==finishDate==", finishDate);
+  }, [finishDate]);
+  // =================================
+  const [Uhr, setUhr] = useState<string>("00:00");
+
+  const handlerUhrOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setUhr(e.target.value);
+  };
+=======
+    setEndTime(e.target.value); 
+  };
+    useEffect(() => {
+      console.log(endTime);
+    }, [endTime]);
+  // =================================
+  ;
+const [finishDate, setFinishDate] = useState<object>(null);
+useEffect(() => {
+  console.log("==finishDate==", finishDate);
+}, [finishDate]);
+>>>>>>> 41f2978a853359bbea1890d228d4f1db3c169384
+  // =================================
   return (
     <div className={styles["ui-page"]}>
       {/* ========Select=========== */}
@@ -82,15 +140,16 @@ const Ui: React.FC<UiProps> = () => {
       <div className="m-4 bg-black">
         <Burger handlerburgerClick={() => setIsOpen(!isOpen)} isOpen={isOpen} />
       </div>
-      {/* ========Input====textarea======= */}
+      {/* ========Input=========== */}
       <div className="m-4"></div>
+      <p>Input value: {value}</p>
       <Input
         typeInput="text"
         data="Name"
         value={value}
         onChange={handlerInputOnChange}
       />
-      {/* ========Input=========== */}
+      {/* ========Input===textarea======== */}
       <div className="m-4"></div>
       <Input
         typeInput="textarea"
@@ -98,6 +157,42 @@ const Ui: React.FC<UiProps> = () => {
         value={valueTextarea}
         onChange={onChangeTextarea}
       />
+      {/* ========Input number=========== */}
+      <div className="m-4"></div>
+      <p>Input valueNumber: {valueNumber}</p>
+      <Input
+        typeInput="number"
+        data="Number"
+        value={valueNumber}
+        onChange={handlerNumberOnChange}
+      />
+      {/* ================= */}
+      <p>End Time: {endTime}</p>
+      <Input
+        typeInput="datetime-local"
+        data="End Time"
+        value={endTime}
+        onChange={handleEndTimeChange}
+      />
+      {/* =======Calendar========== */}
+      <div className="mt-4">==========</div>
+<<<<<<< HEAD
+      <h5>Uhr: {Uhr}</h5>
+      <div className="mt-4">==========</div>
+      <Calendar setFinishDate={setFinishDate} />
+      {/* ============================== */}
+      <div className="m-4"></div>
+      <ClockUhr value={Uhr} onChange={handlerUhrOnChange} />
+=======
+      <h5>finishDate: {new Date(finishDate).toLocaleString().slice(0, 10)}</h5>
+      <div className="mt-4">==========</div>
+      <Calendar setFinishDate={setFinishDate} />
+      {/* ============================== */}
+
+      <div className="m-4"></div>
+      <ClockPicker />
+      <div className="m-4"></div>
+>>>>>>> 41f2978a853359bbea1890d228d4f1db3c169384
       {/* =======InputCheck============ */}
       <div className="m-4"></div>
       <InputCheck
