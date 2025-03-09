@@ -100,7 +100,6 @@ const Ui: React.FC<UiProps> = () => {
   // =================================
   const handleEndTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log("New endTime:", e.target.value);
-<<<<<<< HEAD
     setEndTime(e.target.value);
   };
   useEffect(() => {
@@ -117,19 +116,6 @@ const Ui: React.FC<UiProps> = () => {
   const handlerUhrOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setUhr(e.target.value);
   };
-=======
-    setEndTime(e.target.value); 
-  };
-    useEffect(() => {
-      console.log(endTime);
-    }, [endTime]);
-  // =================================
-  ;
-const [finishDate, setFinishDate] = useState<object>(null);
-useEffect(() => {
-  console.log("==finishDate==", finishDate);
-}, [finishDate]);
->>>>>>> 41f2978a853359bbea1890d228d4f1db3c169384
   // =================================
   return (
     <div className={styles["ui-page"]}>
@@ -176,23 +162,12 @@ useEffect(() => {
       />
       {/* =======Calendar========== */}
       <div className="mt-4">==========</div>
-<<<<<<< HEAD
       <h5>Uhr: {Uhr}</h5>
       <div className="mt-4">==========</div>
       <Calendar setFinishDate={setFinishDate} />
       {/* ============================== */}
       <div className="m-4"></div>
       <ClockUhr value={Uhr} onChange={handlerUhrOnChange} />
-=======
-      <h5>finishDate: {new Date(finishDate).toLocaleString().slice(0, 10)}</h5>
-      <div className="mt-4">==========</div>
-      <Calendar setFinishDate={setFinishDate} />
-      {/* ============================== */}
-
-      <div className="m-4"></div>
-      <ClockPicker />
-      <div className="m-4"></div>
->>>>>>> 41f2978a853359bbea1890d228d4f1db3c169384
       {/* =======InputCheck============ */}
       <div className="m-4"></div>
       <InputCheck
