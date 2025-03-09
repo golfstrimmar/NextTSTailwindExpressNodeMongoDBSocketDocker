@@ -33,13 +33,14 @@ const Navbar: React.FC = () => {
               Home
             </Link>
           </li>
+
           <li>
             <Link
-              href="/ui"
+              href="/auctions"
               className="text-white hover:text-gray-300"
               onClick={() => setIsOpen(false)}
             >
-              UI
+              Auctions
             </Link>
           </li>
           <li>
@@ -67,6 +68,15 @@ const Navbar: React.FC = () => {
               onClick={() => setIsOpen(false)}
             >
               Login
+            </Link>
+          </li>
+          <li>
+            <Link
+              href="/ui"
+              className="text-white hover:text-gray-300"
+              onClick={() => setIsOpen(false)}
+            >
+              UI
             </Link>
           </li>
         </ul>
