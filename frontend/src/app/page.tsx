@@ -13,18 +13,18 @@ interface Auction {
 const HomePage = () => {
   const [auctions, setAuctions] = useState<Auction[]>([]);
 
-  // useEffect(() => {
-  //   const fetchAuctions = async () => {
-  //     try {
-  //       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-  //       const response = await axios.get(apiUrl!);
-  //       setAuctions(response.data);
-  //     } catch (error) {
-  //       console.error("Error fetching auctions:", error);
-  //     }
-  //   };
-  //   fetchAuctions();
-  // }, []);
+  useEffect(() => {
+    const fetchAuctions = async () => {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+        const response = await axios.get(apiUrl!);
+        setAuctions(response.data);
+      } catch (error) {
+        console.error("Error fetching auctions:", error);
+      }
+    };
+    fetchAuctions();
+  }, []);
 
   return (
     <div>
