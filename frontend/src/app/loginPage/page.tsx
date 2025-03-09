@@ -236,7 +236,7 @@ const LoginPage = () => {
               onError={handleGoogleLoginFailure}
             />
           </button>
-
+          <p>or</p>
           <Button
             onClick={(e) => {
               handleLogin(e);
