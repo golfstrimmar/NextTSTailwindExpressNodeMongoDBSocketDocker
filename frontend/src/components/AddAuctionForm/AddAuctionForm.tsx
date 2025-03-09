@@ -43,7 +43,10 @@ const AddAuctionForm: React.FC = () => {
     lotDate: new Date().toLocaleString().slice(0, 10),
     time: "00:00",
   });
-
+  const [shouldReset, setShouldReset] = useState<boolean>(false);
+  const handleResetComplete = () => {
+    setShouldReset(false);
+  };
   const resetForm = () => {
     setTitle("");
     setStartPrice(0);
@@ -58,6 +61,7 @@ const AddAuctionForm: React.FC = () => {
     setTime(new Date().toLocaleString().slice(11, 17));
     setSuccessMessage("");
     setOpenModalMessage(false);
+    setShouldReset(true);
   };
   // =================================
   useEffect(() => {
@@ -82,6 +86,13 @@ const AddAuctionForm: React.FC = () => {
     }
   }, [socket]);
 
+  // =================================
+  useEffect(() => {
+    setEndTime({
+      lotDate: date.toLocaleString().slice(0, 10),
+      time: time,
+    });
+  }, [time, date]);
   // =================================
   const handleImageUpload = async (): Promise<string | undefined> => {
     if (image) {
@@ -140,28 +151,43 @@ const AddAuctionForm: React.FC = () => {
   ) => {
     setStartPrice(e.target.value);
   };
-  useEffect(() => {
-    console.log(startPrice);
-  }, [startPrice]);
+
   // =================================
   const handleUhrChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("New time:", e.target.value);
     setTime(e.target.value);
   };
   // =================================
   // Формирование единого объекта endTime для отправки
   const getFullEndTime = (): string => {
-    const { lotDate, time } = endTime;
-    const [year, month, day] = lotDate.split("-").map(Number);
-    const [hours, minutes] = time.split(":").map(Number);
+    console.log("====endTime.lotDate=====", endTime.lotDate);
+    console.log("====endTime.time=====", endTime.time);
+    const [day, month, year] = endTime.lotDate.split(".").map(Number);
+    // Парсим "HH:MM"
+    const [hours, minutes] = endTime.time.split(":").map(Number);
 
     if (
-      isNaN(year) ||
-      isNaN(month) ||
       isNaN(day) ||
+      isNaN(month) ||
+      isNaN(year) ||
       isNaN(hours) ||
       isNaN(minutes)
     ) {
-      console.error("Invalid date/time values:", {
+      console.error("Invalid values:", {
+        lotDate,
+        time,
+        day,
+        month,
+        year,
+        hours,
+        minutes,
+      });
+      return new Date().toISOString(); // Fallback на текущую дату
+    }
+    const combinedDate = new Date(year, month - 1, day, hours, minutes);
+
+    if (isNaN(combinedDate.getTime())) {
+      console.error("Invalid Date created:", {
         year,
         month,
         day,
@@ -170,14 +196,8 @@ const AddAuctionForm: React.FC = () => {
       });
       return new Date().toISOString();
     }
-
-    const endDateTime = new Date(year, month - 1, day, hours, minutes);
-    if (isNaN(endDateTime.getTime())) {
-      console.error("Invalid Date created");
-      return new Date().toISOString();
-    }
-
-    return endDateTime.toISOString();
+    console.log("===--- combinedDate ---====", combinedDate.toISOString());
+    return combinedDate.toISOString();
   };
 
   // =================================
@@ -202,6 +222,7 @@ const AddAuctionForm: React.FC = () => {
     try {
       const imageUrl = await handleImageUpload();
       const endDateTime = getFullEndTime();
+      console.log("===--- endDateTime ---====", endDateTime);
       const auctionData = {
         title,
         startPrice,
@@ -254,13 +275,11 @@ const AddAuctionForm: React.FC = () => {
         <h3 className="text-gray-700 font-bold  italic ">
           End Time: {endTime?.time}
         </h3>
-        {/* <h5>
-        date:{" "}
-        {date
-          ? new Date(date).toLocaleString().slice(0, 10)
-          : "No date selected"}
-      </h5> */}
-        <Calendar setFinishDate={setDate} />
+        <Calendar
+          setFinishDate={setDate}
+          shouldReset={shouldReset}
+          onResetComplete={handleResetComplete}
+        />
         <div className={styles["clockUhr"]}>
           <ClockUhr value={time} onChange={handleUhrChange} />
         </div>
@@ -279,7 +298,7 @@ const AddAuctionForm: React.FC = () => {
         {imagePreview && (
           <>
             <h3 className="text-gray-700 font-bold  italic ">Image Preview:</h3>
-            <div className="w-[100px] h-[100px] relative cursor-pointer">
+            <div className="w-[100px] h-[100px] relative cursor-pointer rounded-[5px] overflow-hidden">
               <div className="imgs">
                 <img src={imagePreview} alt="Image preview" />
               </div>

@@ -4,8 +4,10 @@ import styles from "./Calendar.module.scss";
 import ModalMessage from "@/components/ModalMessage/ModalMessage";
 interface CalendarProps {
   handleDateChange?: (date: Date) => void;
-  transData?: string | Date;
+  resetTrigger?: number;
   setFinishDate?: (date: Date) => void;
+  shouldReset?: boolean;
+  onResetComplete?: () => void;
 }
 
 const weekdays: string[] = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
@@ -27,6 +29,8 @@ const months: string[] = [
 const Calendar: React.FC<CalendarProps> = ({
   handleDateChange,
   setFinishDate,
+  shouldReset,
+  onResetComplete,
 }) => {
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [openModalMessage, setOpenModalMessage] = useState<boolean>(false);
@@ -34,10 +38,8 @@ const Calendar: React.FC<CalendarProps> = ({
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const validateAndSetDate = (date: Date) => {
     const now = new Date();
-    // Сравниваем только дату (без времени)
     const selected = new Date(date.setHours(0, 0, 0, 0));
     const today = new Date(now.setHours(0, 0, 0, 0));
-
     if (selected < today) {
       setSuccessMessage("Date must be in the future!");
       setOpenModalMessage(true);
@@ -49,13 +51,20 @@ const Calendar: React.FC<CalendarProps> = ({
       if (handleDateChange) handleDateChange(new Date());
       if (setFinishDate) setFinishDate(new Date());
     } else {
-      // Если дата валидна, устанавливаем её
       setSelectedDate(date);
       if (handleDateChange) handleDateChange(date);
       if (setFinishDate) setFinishDate(date);
     }
   };
-
+  useEffect(() => {
+    if (shouldReset) {
+      const today = new Date();
+      setSelectedDate(today);
+      setCurrentDate(today);
+      if (setFinishDate) setFinishDate(today);
+      if (onResetComplete) onResetComplete();
+    }
+  }, [shouldReset, setFinishDate, onResetComplete]);
   useEffect(() => {
     validateAndSetDate(selectedDate);
   }, [selectedDate, handleDateChange, setFinishDate]);

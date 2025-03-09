@@ -13,13 +13,13 @@ const New: React.FC = () => {
         Auction List:
       </h2>
       <ul className="mt-4 flex flex-col gap-4">
-        {auctions.map((auction) => (
-          <Lot key={auction._id} auction={auction} />
-          // <li key={auction._id}>
-          //   {auction.title} - {auction.startPrice} -{" "}
-          //   {new Date(auction.endTime).toLocaleString()} - {auction.imageUrl}
-          // </li>
-        ))}
+        {auctions.length > 0 ? (
+          auctions.map((auction) => <Lot key={auction._id} auction={auction} />)
+        ) : (
+          <p className="text-center text-indigo-800 font-bold text-[20px]">
+            No active auctions
+          </p>
+        )}
       </ul>
     </div>
   );
