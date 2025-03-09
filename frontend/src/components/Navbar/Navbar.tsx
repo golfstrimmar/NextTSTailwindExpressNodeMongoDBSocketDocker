@@ -3,8 +3,30 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Burger from "../ui/Burger/Burger";
 import styles from "./Navbar.module.scss";
+import { useSelector, useDispatch } from "react-redux";
+import { clearUser } from "@/app/redux/slices/authSlice";
+import { useRouter } from "next/navigation";
+interface User {
+  _id?: string;
+  userName: string;
+  email: string;
+  avatar: string;
+  createdAt: string;
+}
+
 const Navbar: React.FC = () => {
+  const router = useRouter();
+  const dispatch = useDispatch();
+  const user = useSelector((state: any) => state.auth.user as User);
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const handleLogout = () => {
+    if (user) {
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
+      dispatch(clearUser());
+      router.replace("/loginPage");
+    }
+  };
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth > 767) {
@@ -43,33 +65,51 @@ const Navbar: React.FC = () => {
               Auctions
             </Link>
           </li>
-          <li>
-            <Link
-              href="/auctions/new"
-              className="text-white hover:text-gray-300"
-              onClick={() => setIsOpen(false)}
-            >
-              New
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/registerPage"
-              className="text-white hover:text-gray-300"
-              onClick={() => setIsOpen(false)}
-            >
-              Register
-            </Link>
-          </li>
-          <li>
-            <Link
-              href="/loginPage"
-              className="text-white hover:text-gray-300"
-              onClick={() => setIsOpen(false)}
-            >
-              Login
-            </Link>
-          </li>
+
+          {user ? (
+            <>
+              <li>
+                <Link
+                  href="/auctions/new"
+                  className="text-white hover:text-gray-300"
+                  onClick={() => setIsOpen(false)}
+                >
+                  New
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/profile"
+                  className="text-white hover:text-gray-300"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Profile
+                </Link>
+              </li>
+            </>
+          ) : (
+            <>
+              <li>
+                <Link
+                  href="/registerPage"
+                  className="text-white hover:text-gray-300"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Register
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/loginPage"
+                  className="text-white hover:text-gray-300"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Login
+                </Link>
+              </li>
+            </>
+          )}
+
           <li>
             <Link
               href="/ui"
@@ -79,6 +119,16 @@ const Navbar: React.FC = () => {
               UI
             </Link>
           </li>
+          {user ? (
+            <button
+              onClick={handleLogout}
+              className="text-white hover:text-gray-300 transition-colors duration-200 border border-white px-2  rounded-md cursor-pointer hover:border-gray-300 "
+            >
+              Logout
+            </button>
+          ) : (
+            ""
+          )}
         </ul>
       </div>
     </nav>

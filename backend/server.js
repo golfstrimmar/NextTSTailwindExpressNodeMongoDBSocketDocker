@@ -218,6 +218,7 @@ io.on("connection", (socket) => {
       return null; // Возвращаем null, если аватар недоступен
     }
   };
+
   socket.on("googleRegister", async (data) => {
     const { token } = data;
 
@@ -227,68 +228,100 @@ io.on("connection", (socket) => {
     }
 
     try {
-      // Верификация токена через Google API
       const ticket = await client.verifyIdToken({
-        idToken: token, // Токен от клиента
-        audience: process.env.GOOGLE_CLIENT_ID, // Ваш Google Client ID
+        idToken: token,
+        audience: process.env.GOOGLE_CLIENT_ID,
       });
 
       const payload = ticket.getPayload();
       const email = payload.email;
       const userName = payload.name;
-      const googleId = payload.sub; // Google ID
-      const avatarUrl = payload.picture || null; // Получаем URL аватара
+      const googleId = payload.sub;
+      const avatarUrl = payload.picture || null;
 
-      // Проверка, существует ли пользователь в базе данных
       let user = await User.findOne({ email });
 
       if (user) {
-        // Если пользователь уже существует, объединяем учетные записи
         if (!user.googleId) {
           user.googleId = googleId;
           await user.save();
         }
         socket.emit("googleRegisterSuccess", {
           message: "User already exists. Account linked with Google.",
-          user: user,
+          user,
         });
         return;
       }
 
-      // Скачиваем аватар и преобразуем его в Base64
-      let avatarBase64 = null;
-      if (avatarUrl) {
-        avatarBase64 = await downloadAvatarAsBase64(avatarUrl);
-      }
-
-      // Создаем нового пользователя
-      user = new User({
+      // Новый пользователь → требуем пароль
+      socket.emit("requirePassword", {
+        message: "You need to set a password to complete registration.",
         email,
         userName,
-        avatar: avatarBase64, // Сохраняем аватар в Base64
-        googleId, // Сохраняем Google ID
-      });
-
-      await user.save();
-
-      // Генерация JWT токена для аутентификации пользователя
-      const jwtToken = jwt.sign(
-        { userId: user._id, email: user.email },
-        process.env.JWT_SECRET,
-        { expiresIn: "10h" }
-      );
-
-      // Отправка успешного ответа с данными пользователя и JWT токеном
-      socket.emit("googleRegisterSuccess", {
-        message: "Google registration successful!",
-        user: user,
-        token: jwtToken, // Отправляем новый токен
+        googleId,
+        avatarUrl,
       });
     } catch (error) {
       console.error("Google registration error:", error);
       socket.emit("registrationError", {
         message: "Error during Google registration.",
       });
+    }
+  });
+
+  // ===================================
+  socket.on("setPassword", async (data) => {
+    const { email, password, userName, googleId, avatarUrl } = data;
+
+    if (!email || !password) {
+      socket.emit("registrationError", {
+        message: "Email and password are required.",
+      });
+      return;
+    }
+
+    try {
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        socket.emit("registrationError", { message: "User already exists." });
+        return;
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      let avatarBase64 = null;
+      if (avatarUrl) {
+        avatarBase64 = await downloadAvatarAsBase64(avatarUrl);
+      }
+
+      const newUser = new User({
+        userName,
+        email,
+        passwordHash: hashedPassword,
+        avatar: avatarBase64,
+        googleId,
+      });
+
+      await newUser.save();
+      console.log("User saved to DB:", newUser); // Проверяем, что сохранилось
+
+      const savedUser = await User.findOne({ email });
+      console.log("User from DB:", savedUser); // Проверяем, что реально в базе
+
+      const jwtToken = jwt.sign(
+        { userId: newUser._id, email: newUser.email },
+        process.env.JWT_SECRET,
+        { expiresIn: "10h" }
+      );
+
+      socket.emit("googleRegisterSuccess", {
+        message: "Registration successful!",
+        user: newUser,
+        token: jwtToken,
+      });
+    } catch (error) {
+      console.error("Error setting password:", error);
+      socket.emit("registrationError", { message: "Error setting password." });
     }
   });
   // ===============================
@@ -337,7 +370,7 @@ io.on("connection", (socket) => {
     } catch (error) {
       console.error("Error during login:", error);
       socket.emit("loginError", {
-        message: "Error during login from server. Password required.",
+        message: "Error during login from server. ",
         currentemail: email,
         passwordrequired: true,
       });

@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-// import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import Eye from "@/assets/svg/eye.svg";
 import ModalMessage from "@/components/ModalMessage/ModalMessage";
 import Button from "@/components/ui/Button/Button";
@@ -30,7 +30,7 @@ interface SocketData {
 }
 
 const LoginPage = () => {
-  // const navigate = useNavigate();
+  const router = useRouter();
   const dispatch = useDispatch();
   const socket = useSelector((state: any) => state.socket.socket);
 
@@ -50,7 +50,7 @@ const LoginPage = () => {
   // =========================
   useEffect(() => {
     if (socket) {
-      socket.on("loginSuccess", (data: SocketData) => {
+      const handleLoginSuccess = (data: SocketData) => {
         localStorage.setItem("user", JSON.stringify(data.user));
         localStorage.setItem("token", data.token);
         console.log("===--- user ---====", data.user);
@@ -60,12 +60,13 @@ const LoginPage = () => {
         setOpenModalMessage(true);
 
         setTimeout(() => {
+          router.replace("/profile");
           setSuccessMessage("");
           setOpenModalMessage(false);
-          // navigate("/profile");
         }, 2000);
-      });
+      };
 
+      socket.on("loginSuccess", handleLoginSuccess);
       socket.on("googleLoginSuccess", (data: SocketData) => {
         localStorage.setItem("user", JSON.stringify(data.user));
         localStorage.setItem("token", data.token);
@@ -75,23 +76,19 @@ const LoginPage = () => {
         setSuccessMessage("Google login successful");
         setOpenModalMessage(true);
         setTimeout(() => {
+          router.replace("/profile");
           setSuccessMessage("");
           setOpenModalMessage(false);
         }, 2000);
       });
 
       socket.on("loginError", (data: SocketData) => {
-        console.log("===---currentemail email ---====", data.currentemail);
-        console.log(
-          "====loginError from server=====",
-          data.message,
-          data.error
-        );
         setSuccessMessage(data.message);
         setOpenModalMessage(true);
         setTimeout(() => {
           setSuccessMessage("");
           setOpenModalMessage(false);
+          router.replace("/registerPage");
           // if (data.passwordrequired) {
           //   navigate(`/setpassword/${data.currentemail}`);
           // }
@@ -106,10 +103,15 @@ const LoginPage = () => {
         setTimeout(() => {
           setSuccessMessage("");
           setOpenModalMessage(false);
+          router.replace("/registerPage");
         }, 2000);
       });
+
+      return () => {
+        socket.off("loginSuccess", handleLoginSuccess);
+      };
     }
-  }, [socket, dispatch]);
+  }, [socket, dispatch, router]);
   // ===============================
   // ===============================
   // ===============================
@@ -197,7 +199,7 @@ const LoginPage = () => {
   };
   // =========================
   return (
-    <div className="registration">
+    <div className="">
       <ModalMessage message={successMessage} open={openModalMessage} />
       <div className="container">
         <h2 className="text-2xl font-semibold italic text-gray-800 text-center">
