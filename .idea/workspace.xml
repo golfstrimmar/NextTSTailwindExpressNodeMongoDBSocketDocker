@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="613e6e12-f52a-4337-ae3e-fb4abf043cb9" name="Changes" comment="webstorm+++">
+    <list default="true" id="613e6e12-f52a-4337-ae3e-fb4abf043cb9" name="Changes" comment="webstorm+filter">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/app/auctions/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/auctions/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/ui/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/ui/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/ui/Select/Select.module.scss" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/ui/Select/Select.module.scss" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,7 +66,7 @@
     "ts.external.directory.path": "D:\\WEB\\NextTSTailwindExpressNodeMongoDBSocketDocker\\frontend\\node_modules\\typescript\\lib"
   }
 }]]></component>
-  <component name="RunManager" selected="npm.dev --turbo">
+  <component name="RunManager" selected="npm.start">
     <configuration name="dev --turbo" type="js.build_tools.npm" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/frontend/package.json" />
       <command value="run" />
@@ -111,6 +109,7 @@
     <MESSAGE value="webstorm" />
     <MESSAGE value="webstorm+" />
     <MESSAGE value="webstorm+++" />
-    <option name="LAST_COMMIT_MESSAGE" value="webstorm+++" />
+    <MESSAGE value="webstorm+filter" />
+    <option name="LAST_COMMIT_MESSAGE" value="webstorm+filter" />
   </component>
 </project>
