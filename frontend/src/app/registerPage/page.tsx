@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
-import styles from "./RegisterPage.scss"; // Предполагаю, что это правильный путь
+import styles from "./RegisterPage.module.scss";
 import Eye from "@/assets/svg/eye.svg";
 import ModalMessage from "@/components/ModalMessage/ModalMessage";
 import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
@@ -19,7 +19,7 @@ interface SocketData {
   message: string;
   token?: string;
   error?: string;
-  email?: string; // Добавляем поля от requirePassword
+  email?: string;
   userName?: string;
   googleId?: string;
   avatarUrl?: string | null;
@@ -44,14 +44,14 @@ const RegisterPage: React.FC = () => {
   const passwordInputRef = useRef<HTMLInputElement | null>(null);
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [openModalMessage, setOpenModalMessage] = useState<boolean>(false);
-  const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false); // Модалка для пароля
+  const [showPasswordModal, setShowPasswordModal] = useState<boolean>(false);
   const [googleData, setGoogleData] = useState<{
     email: string;
     userName: string;
     googleId: string;
     avatarUrl: string | null;
   } | null>(null);
-  const [googlePassword, setGooglePassword] = useState<string>(""); // Пароль для Google
+  const [googlePassword, setGooglePassword] = useState<string>("");
 
   useEffect(() => {
     if (!socket) return;
@@ -71,7 +71,7 @@ const RegisterPage: React.FC = () => {
       console.log("===--- googleRegisterSuccess ---====", data);
       setSuccessMessage(data.message);
       setOpenModalMessage(true);
-      setShowPasswordModal(false); // Закрываем модалку пароля
+      setShowPasswordModal(false);
       setTimeout(() => {
         setSuccessMessage("");
         setOpenModalMessage(false);
@@ -87,7 +87,7 @@ const RegisterPage: React.FC = () => {
         googleId: data.googleId || "",
         avatarUrl: data.avatarUrl || null,
       });
-      setShowPasswordModal(true); // Показываем модалку для ввода пароля
+      setShowPasswordModal(true);
     });
 
     socket.on("registrationError", (data: SocketData) => {
@@ -147,7 +147,6 @@ const RegisterPage: React.FC = () => {
       }, 2000);
       return;
     }
-    console.log("===--- register ---====", username, email, password);
     if (socket) {
       socket.emit("register", { username, email, password });
     }

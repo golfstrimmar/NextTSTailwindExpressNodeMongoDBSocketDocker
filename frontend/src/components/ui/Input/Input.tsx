@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { RefObject } from "react";
 import styles from "./Input.module.scss";
 
 interface InputProps {
@@ -11,16 +11,23 @@ interface InputProps {
     | "email"
     | "tel"
     | "date"
+    | "password"
     | "time";
   data: string;
   value: string;
-  inputRef: string;
   onChange: (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
+  inputRef: RefObject<HTMLInputElement | HTMLTextAreaElement>;
 }
 
-const Input: React.FC<InputProps> = ({ typeInput, data, value, onChange }) => {
+const Input: React.FC<InputProps> = ({
+  typeInput,
+  data,
+  value,
+  onChange,
+  inputRef,
+}) => {
   return (
     <div className={styles["input-field"]}>
       {typeInput === "textarea" ? (
@@ -28,14 +35,16 @@ const Input: React.FC<InputProps> = ({ typeInput, data, value, onChange }) => {
           id={data}
           name={data}
           value={value}
+          ref={inputRef as RefObject<HTMLTextAreaElement>}
           onChange={onChange}
           required
         />
       ) : (
         <input
           id={data}
+          ref={inputRef as RefObject<HTMLInputElement>}
           name={data}
-          type={typeInput} 
+          type={typeInput}
           value={value}
           onChange={(e) => {
             console.log("Input onChange:", e.target.value);
