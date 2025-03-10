@@ -20,22 +20,25 @@ const New: React.FC = () => {
   );
 
   // =================================
-  const sortAuctions = (auctions, sortOrderEndTime, sortOrderCreatedAt) => {
-    const newAuctions = [...auctions];
-    return newAuctions.sort((a, b) => {
-      const endTimeA = new Date(a.endTime);
-      const endTimeB = new Date(b.endTime);
-      const createdAtA = a.createdAt ? new Date(a.createdAt) : new Date(0);
-      const createdAtB = b.createdAt ? new Date(b.createdAt) : new Date(0);
-  
-      // Сначала по endTime
-      const endTimeDiff = sortOrderEndTime === "asc" ? endTimeA - endTimeB : endTimeB - endTimeA;
-      if (endTimeDiff !== 0) return endTimeDiff;
-  
-      // Если endTime одинаковые, по createdAt
-      return sortOrderCreatedAt === "asc" ? createdAtA - createdAtB : createdAtB - createdAtA;
-    });
-  };
+ const sortAuctions = (auctions, sortOrderEndTime, sortOrderCreatedAt) => {
+  console.log("auctions:", auctions);
+  console.log("sortOrderEndTime:", sortOrderEndTime, "sortOrderCreatedAt:", sortOrderCreatedAt);
+  const newAuctions = [...auctions];
+  return newAuctions.sort((a, b) => {
+    const endTimeA = new Date(a.endTime);
+    const endTimeB = new Date(b.endTime);
+    const createdAtA = a.createdAt ? new Date(a.createdAt) : new Date(0);
+    const createdAtB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+
+    console.log("a:", { endTime: a.endTime, createdAt: a.createdAt });
+    console.log("b:", { endTime: b.endTime, createdAt: b.createdAt });
+
+    const endTimeDiff = sortOrderEndTime === "asc" ? endTimeA - endTimeB : endTimeB - endTimeA;
+    if (endTimeDiff !== 0) return endTimeDiff;
+
+    return sortOrderCreatedAt === "asc" ? createdAtA - createdAtB : createdAtB - createdAtA;
+  });
+};
   
   const currentAuctions = useMemo(() => {
     return sortAuctions(auctions, sortOrderEndTime, sortOrder);
@@ -50,12 +53,12 @@ const New: React.FC = () => {
       </h2>
 
       <div className="flex gap-8">
-        {/* Сортировка по дате создания*/}
+       <p>{sortOrder}</p> 
         <div className="flex gap-2 items-center mt-6">
           <h3 className="italic">Sorting by creation date:</h3>
           <Select setSortOrder={setSortOrder} selectItems={selectItems} />
         </div>
-        {/* Сортировка по дате окончания*/}
+        <p>{sortOrderEndTime}</p> 
         <div className="flex gap-2 items-center mt-6">
           <h3 className="italic">Sorting by end date:</h3>
           <Select
