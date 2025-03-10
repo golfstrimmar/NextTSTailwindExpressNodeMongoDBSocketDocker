@@ -5,45 +5,82 @@ import { RootState, useAppSelector } from "@/app/redux/store";
 import Lot from "@/components/Lot/Lot";
 import Select from "@/components/ui/Select/Select";
 // =================================
+interface Auction {
+  _id: string;
+  title: string;
+  startPrice: number;
+  endTime: string;
+  imageUrl: string;
+  status: string;
+  creator: string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
 
-const New: React.FC = () => {
+interface SelectItem {
+  name: string;
+  value: string;
+}
+
+const Auctions: React.FC = () => {
   const auctions = useAppSelector((state) => state.auctions.auctions);
-
+  const [currentAuctions, setCurrentAuctions] = useState([]);
   // =================================
-  const selectItems = [
+  const selectItems: SelectItem[] = [
     { name: "Newest First", value: "desc" },
     { name: "Oldest First", value: "asc" },
-  ] as const;
+  ];
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [sortOrderEndTime, setSortOrderEndTime] = useState<"asc" | "desc">(
     "desc"
   );
 
-  // =================================
- const sortAuctions = (auctions, sortOrderEndTime, sortOrderCreatedAt) => {
-  console.log("auctions:", auctions);
-  console.log("sortOrderEndTime:", sortOrderEndTime, "sortOrderCreatedAt:", sortOrderCreatedAt);
-  const newAuctions = [...auctions];
-  return newAuctions.sort((a, b) => {
-    const endTimeA = new Date(a.endTime);
-    const endTimeB = new Date(b.endTime);
-    const createdAtA = a.createdAt ? new Date(a.createdAt) : new Date(0);
-    const createdAtB = b.createdAt ? new Date(b.createdAt) : new Date(0);
+  //  =============================
+  const sortAuctions = (arg: Auction[], sortOrder: "asc" | "desc") => {
+    const currentAuctions = [...arg];
+    return currentAuctions.sort((a, b) => {
+      const dateA = new Date(a.createdAt);
+      const dateB = new Date(b.createdAt);
 
-    console.log("a:", { endTime: a.endTime, createdAt: a.createdAt });
-    console.log("b:", { endTime: b.endTime, createdAt: b.createdAt });
+      if (sortOrder === "asc") {
+        return dateA.getTime() - dateB.getTime();
+      } else {
+        return dateB.getTime() - dateA.getTime();
+      }
+    });
+  };
 
-    const endTimeDiff = sortOrderEndTime === "asc" ? endTimeA - endTimeB : endTimeB - endTimeA;
-    if (endTimeDiff !== 0) return endTimeDiff;
+  const sortEndTime = (
+    arg: Auction[],
+    sortOrderEndTime: "asc" | "desc"
+  ): Auction[] => {
+    const currentAuctions = [...arg];
+    return currentAuctions.sort((a, b) => {
+      const dateA = new Date(a.endTime);
+      const dateB = new Date(b.endTime);
 
-    return sortOrderCreatedAt === "asc" ? createdAtA - createdAtB : createdAtB - createdAtA;
-  });
-};
-  
-  const currentAuctions = useMemo(() => {
-    return sortAuctions(auctions, sortOrderEndTime, sortOrder);
-  }, [auctions, sortOrder, sortOrderEndTime]);
-  
+      if (sortOrderEndTime === "asc") {
+        return dateA.getTime() - dateB.getTime();
+      }
+      if (sortOrderEndTime === "desc") {
+        return dateB.getTime() - dateA.getTime();
+      }
+    });
+  };
+  //  =============================
+
+  useEffect(() => {
+    if (sortOrder) {
+      setCurrentAuctions(sortAuctions(auctions, sortOrder));
+    }
+  }, [auctions, sortOrder]);
+
+  useEffect(() => {
+    if (sortOrderEndTime) {
+      setCurrentAuctions(sortEndTime(auctions, sortOrderEndTime));
+    }
+  }, [auctions, sortOrderEndTime]);
   // =================================
 
   return (
@@ -52,13 +89,12 @@ const New: React.FC = () => {
         Auction List
       </h2>
 
-      <div className="flex gap-8">
-       <p>{sortOrder}</p> 
+      <div className="grid grid-cols-2  gap-4">
         <div className="flex gap-2 items-center mt-6">
           <h3 className="italic">Sorting by creation date:</h3>
           <Select setSortOrder={setSortOrder} selectItems={selectItems} />
         </div>
-        <p>{sortOrderEndTime}</p> 
+
         <div className="flex gap-2 items-center mt-6">
           <h3 className="italic">Sorting by end date:</h3>
           <Select
@@ -82,4 +118,4 @@ const New: React.FC = () => {
   );
 };
 
-export default New;
+export default Auctions;
