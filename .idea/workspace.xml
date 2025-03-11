@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="613e6e12-f52a-4337-ae3e-fb4abf043cb9" name="Changes" comment="webstorm+filter">
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/auctions/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/auctions/page.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,7 +62,7 @@
     "npm.dev --turbo.executor": "Run",
     "npm.start.executor": "Run",
     "prettierjs.PrettierConfiguration.Package": "C:\\Users\\viktor\\AppData\\Roaming\\npm\\node_modules\\prettier",
-    "settings.editor.selected.configurable": "settings.javascript.prettier",
+    "settings.editor.selected.configurable": "reference.idesettings.emmet.jsx",
     "ts.external.directory.path": "D:\\WEB\\NextTSTailwindExpressNodeMongoDBSocketDocker\\frontend\\node_modules\\typescript\\lib"
   }
 }]]></component>
