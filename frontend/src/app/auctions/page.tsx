@@ -4,6 +4,7 @@ import styles from "./Auctions.module.scss";
 import {RootState, useAppSelector} from "@/app/redux/store";
 import Lot from "@/components/Lot/Lot";
 import Select from "@/components/ui/Select/Select";
+import Pagination from "@/components/Pagination/Pagination";
 
 // =================================
 interface Auction {
@@ -26,90 +27,125 @@ interface SelectItem {
 
 const Auctions: React.FC = () => {
     const auctions = useAppSelector((state) => state.auctions.auctions);
-    const [currentAuctions, setCurrentAuctions] = useState([]);
-    // =================================
+    const [currentAuctions, setCurrentAuctions] = useState<Auction[]>([]);
+    const [tempAuctions, setTempAuctions] = useState<Auction[]>(auctions); // Единый отсортированный массив
+
     const selectItems: SelectItem[] = [
         {name: "Newest First", value: "desc"},
         {name: "Oldest First", value: "asc"},
     ];
-    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-    const [sortOrderEndTime, setSortOrderEndTime] = useState<"asc" | "desc">(
-        "desc"
-    );
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc" | "">("");
+    const [sortOrderEndTime, setSortOrderEndTime] = useState<"asc" | "desc" | "">("");
+    const [activeSortType, setActiveSortType] = useState<"createdAt" | "endTime" | "none">("none"); // Текущая активная сортировка
 
-    //  =============================
-    const sortAuctions = (sortOrder: "asc" | "desc"): Auction[] => {
-        const currentAuctions = [...auctions];
-        return currentAuctions.sort((a, b) => {
+    // =============================
+    const sortAuctions = useMemo(() => {
+        if (!sortOrder) return auctions;
+        console.log("=====sortOrder=====", sortOrder);
+        const newAuctions = [...auctions].sort((a, b) => {
             const dateA = new Date(a.createdAt);
             const dateB = new Date(b.createdAt);
-
-            if (sortOrder === "asc") {
-                return dateA.getTime() - dateB.getTime();
-            } else {
-                return dateB.getTime() - dateA.getTime();
-            }
+            return sortOrder === "asc"
+                ? dateA.getTime() - dateB.getTime()
+                : dateB.getTime() - dateA.getTime();
         });
-    };
-
-    const sortEndTime = (
-        sortOrderEndTime: "asc" | "desc"
-    ): Auction[] => {
-        const currentAuctions = [...auctions];
-        return currentAuctions.sort((a, b) => {
-            const dateA = new Date(a.endTime);
-            const dateB = new Date(b.endTime);
-
-            if (sortOrderEndTime === "asc") {
-                return dateA.getTime() - dateB.getTime();
-            }
-            if (sortOrderEndTime === "desc") {
-                return dateB.getTime() - dateA.getTime();
-            }
-        });
-    };
-    //  =============================
-
-    useEffect(() => {
-        setCurrentAuctions(sortAuctions(sortOrder));
+        return newAuctions;
     }, [auctions, sortOrder]);
 
-    useEffect(() => {
-        setCurrentAuctions(sortEndTime(sortOrderEndTime));
+    const sortEndTime = useMemo(() => {
+        if (!sortOrderEndTime) return auctions;
+        console.log("=====sortOrderEndTime=====", sortOrderEndTime);
+        const newAuctions = [...auctions].sort((a, b) => {
+            const dateA = new Date(a.endTime);
+            const dateB = new Date(b.endTime);
+            return sortOrderEndTime === "asc"
+                ? dateA.getTime() - dateB.getTime()
+                : dateB.getTime() - dateA.getTime();
+        });
+        return newAuctions;
     }, [auctions, sortOrderEndTime]);
-    // =================================
+
+    // =============pagination=================
+    const [currentPage, setCurrentPage] = useState<number>(1);
+    const itemsPerPage = 5;
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+
+    // Обновляем tempAuctions и currentAuctions при сортировке
+    useEffect(() => {
+        if (activeSortType === "createdAt") {
+            setTempAuctions(sortAuctions);
+            setCurrentAuctions(sortAuctions.slice(indexOfFirstItem, indexOfLastItem));
+        }
+    }, [sortAuctions, indexOfFirstItem, indexOfLastItem, activeSortType]);
+
+    useEffect(() => {
+        if (activeSortType === "endTime") {
+            setTempAuctions(sortEndTime);
+            setCurrentAuctions(sortEndTime.slice(indexOfFirstItem, indexOfLastItem));
+        }
+    }, [sortEndTime, indexOfFirstItem, indexOfLastItem, activeSortType]);
+
+    // Обработчики для установки активной сортировки
+    const handleSortOrderChange = (value: "asc" | "desc" | "") => {
+        setSortOrder(value);
+        setActiveSortType(value ? "createdAt" : "none");
+    };
+
+    const handleSortOrderEndTimeChange = (value: "asc" | "desc" | "") => {
+        setSortOrderEndTime(value);
+        setActiveSortType(value ? "endTime" : "none");
+    };
+
+    // Изначальная установка tempAuctions при загрузке или сбросе сортировки
+    useEffect(() => {
+        if (activeSortType === "none") {
+            setTempAuctions(auctions);
+            setCurrentAuctions(auctions.slice(indexOfFirstItem, indexOfLastItem));
+        }
+    }, [auctions, activeSortType, indexOfFirstItem, indexOfLastItem]);
 
     return (
         <div>
-            <h2 className="text-2xl font-semibold italic text-gray-800 text-center">
+            <h1 className="text-3xl font-semibold italic text-gray-800 text-center">
                 Auction List
-            </h2>
+            </h1>
+            {currentAuctions.length > 0 ? (
+                <div className="mt-3 grid grid-rows-2 gap-2 md:flex md:gap-4">
+                    <div className="flex gap-2 items-center md:flex-col">
+                        <h3 className="italic">Sorting by creation date:</h3>
+                        <Select setSortOrder={handleSortOrderChange} selectItems={selectItems}/>
+                    </div>
 
-            <div className="grid grid-cols-2  gap-4">
-                <div className="flex gap-2 items-center mt-6">
-                    <h3 className="italic">Sorting by creation date:</h3>
-                    <Select setSortOrder={setSortOrder} selectItems={selectItems}/>
+                    <div className="flex gap-2 items-center md:flex-col">
+                        <h3 className="italic">Sorting by end date:</h3>
+                        <Select setSortOrder={handleSortOrderEndTimeChange} selectItems={selectItems}/>
+                    </div>
                 </div>
+            ) : (
+                null
+            )}
 
-                <div className="flex gap-2 items-center mt-6">
-                    <h3 className="italic">Sorting by end date:</h3>
-                    <Select
-                        setSortOrder={setSortOrderEndTime}
-                        selectItems={selectItems}
-                    />
-                </div>
-            </div>
-            <ul className="mt-4 flex flex-col gap-4">
+
+            <ul className="mt-4 grid md:grid-cols-[repeat(auto-fill,minmax(410px,1fr))] gap-4 justify-items-center">
                 {currentAuctions.length > 0 ? (
-                    currentAuctions.map((auction) => (
-                        <Lot key={auction._id} auction={auction}/>
-                    ))
+                    currentAuctions.map((auction) => <Lot key={auction._id} auction={auction}/>)
                 ) : (
                     <p className="text-center text-indigo-800 font-bold text-[20px]">
                         No active auctions
                     </p>
                 )}
             </ul>
+
+            {/* Пагинация */}
+            {currentAuctions.length > 0 && (
+                <Pagination
+                    items={tempAuctions}
+                    itemsPerPage={itemsPerPage}
+                    currentPage={currentPage}
+                    setCurrentPage={setCurrentPage}
+                />
+            )}
         </div>
     );
 };

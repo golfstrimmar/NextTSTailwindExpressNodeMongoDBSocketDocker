@@ -1,9 +1,9 @@
 import express from "express";
 import http from "http";
-import { connectDB } from "./config/db.js";
-import { Server } from "socket.io";
+import {connectDB} from "./config/db.js";
+import {Server} from "socket.io";
 import dotenv from "dotenv";
-import { OAuth2Client } from "google-auth-library";
+import {OAuth2Client} from "google-auth-library";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import cors from "cors";
@@ -27,7 +27,7 @@ const io = new Server(server, {
 });
 // ===========================
 // Middleware
-app.use(cors({ origin: "*" }));
+app.use(cors({origin: "*"}));
 app.use(express.json());
 app.use((req, res, next) => {
   console.log(
@@ -39,7 +39,7 @@ app.use((req, res, next) => {
 });
 // ===========================
 app.get("/auth/google/callback", async (req, res) => {
-  const { code } = req.query;
+  const {code} = req.query;
   if (!code) {
     return res.status(400).send("Code is required");
   }
@@ -52,7 +52,7 @@ app.get("/auth/google/callback", async (req, res) => {
       redirect_uri: "http://localhost:5000/auth/google/callback", // Измените на порт сервера
       grant_type: "authorization_code",
     });
-    const { access_token, id_token } = response.data;
+    const {access_token, id_token} = response.data;
     // Верификация id_token
     const ticket = await client.verifyIdToken({
       idToken: id_token,
@@ -64,7 +64,7 @@ app.get("/auth/google/callback", async (req, res) => {
     const googleId = payload.sub;
     const avatarUrl = payload.picture || null;
     // Проверка или создание пользователя
-    let user = await User.findOne({ email });
+    let user = await User.findOne({email});
     if (!user) {
       const avatarBase64 = avatarUrl
         ? await downloadAvatarAsBase64(avatarUrl)
@@ -79,9 +79,9 @@ app.get("/auth/google/callback", async (req, res) => {
     }
     // Генерация JWT
     const jwtToken = jwt.sign(
-      { userId: user._id, email: user.email },
+      {userId: user._id, email: user.email},
       process.env.JWT_SECRET,
-      { expiresIn: "10h" },
+      {expiresIn: "10h"},
     );
     // Перенаправление на фронтенд с токеном
     res.redirect(`http://localhost:3000/dashboard?token=${jwtToken}`);
@@ -91,29 +91,27 @@ app.get("/auth/google/callback", async (req, res) => {
   }
 });
 // ===========================
-// Маршрут для получения всех активных аукционов
 app.get("/api/auctions", async (req, res) => {
   try {
-    const auctions = await Auction.find({ status: "active" });
+    const auctions = await Auction.find({status: "active"});
     res.json(auctions);
   } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({message: "Server error"});
   }
 });
 // ===========================
-// Слушаем подключение клиентов через WebSocket
 io.on("connection", (socket) => {
   console.log(`Client connected: ${socket.id}`);
   // ===============================
   socket.on("getAuctions", async () => {
-    const auctions = await Auction.find({ status: "active" });
+    const auctions = await Auction.find({status: "active"});
     socket.emit("auctionsList", auctions);
   });
   // ===============================
   socket.on("addAuction", async (payload) => {
     console.log("===Adding new auction:====", payload);
     // Извлекаем auctionData и token
-    const { auctionData, token } = payload;
+    const {auctionData, token} = payload;
     const data = auctionData || payload; // На случай, если структура отличается
     console.log("===Extracted data:====", data);
     // Проверяем токен
@@ -126,6 +124,7 @@ io.on("connection", (socket) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       creatorId = decoded.userId;
       const creator = await User.findById(creatorId);
+      console.log('=====creator=====', creator)
       if (!creator) {
         console.log("===Validation error:====", "User not found");
         return io.emit("erroraddingauction", "User not found");
@@ -139,7 +138,7 @@ io.on("connection", (socket) => {
       startPrice: Number(data.startPrice),
       endTime: new Date(data.endTime),
       imageUrl: data.imageUrl || "",
-      creator: creatorId, // Добавляем creator
+      creator: data.creator, // Добавляем creator
     };
     try {
       const existingAuction = await Auction.findOne({
@@ -155,21 +154,93 @@ io.on("connection", (socket) => {
       console.log("===New auction instance:====", newAuction);
       await newAuction.save();
       console.log("===Auction saved:====", newAuction);
-      const auctions = await Auction.find({ status: "active" }).populate(
+      const auctions = await Auction.find({status: "active"}).populate(
         "creator",
         "userName",
       );
       console.log("===Sending auctions list:====", auctions);
       io.emit("auctionsList", auctions);
-      io.emit("auctionAdded", { message: "Auction added successfully" });
+      io.emit("auctionAdded", {message: "Auction added successfully"});
     } catch (error) {
       console.error("Error adding auction:", error);
       io.emit("erroraddingauction", error.message);
     }
   });
   // ===============================
+  socket.on("placeBid", async (payload) => {
+    console.log("===Placing bid:====", payload);
+    const {auctionId, amount, token} = payload;
+    // Проверка входных данных
+    if (!auctionId || !amount || !token) {
+      console.log("===Validation error:====", "Missing required fields");
+      return socket.emit("bidError", "Auction ID, amount, and token are required");
+    }
+    // Проверка токена
+    let userId;
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      userId = decoded.userId;
+      const user = await User.findById(userId);
+      if (!user) {
+        console.log("===Validation error:====", "User not found");
+        return socket.emit("bidError", "User not found");
+      }
+    } catch (error) {
+      console.error("Token verification error:", error);
+      return socket.emit("bidError", "Invalid token");
+    }
+    try {
+      // Находим аукцион
+      const auction = await Auction.findById(auctionId);
+      if (!auction) {
+        console.log("===Validation error:====", "Auction not found");
+        return socket.emit("bidError", "Auction not found");
+      }
+      // Проверки перед ставкой
+      if (auction.status !== "active") {
+        return socket.emit("bidError", "Auction is not active");
+      }
+      if (new Date() > auction.endTime) {
+        auction.status = "ended";
+        await auction.save();
+        return socket.emit("bidError", "Auction has ended");
+      }
+      const minBid = auction.currentBid || auction.startPrice;
+      if (amount <= minBid) {
+        return socket.emit("bidError", `Bid must be higher than ${minBid}`);
+      }
+      if (auction.creator.toString() === userId) {
+        return socket.emit("bidError", "You cannot bid on your own auction");
+      }
+      // Обновляем аукцион
+      auction.currentBid = amount;
+      auction.bids.push({
+        user: userId,
+        amount,
+        timestamp: new Date(),
+      });
+      await auction.save();
+      console.log("===Bid placed:====", auction);
+      // Обновляем список аукционов для всех клиентов
+      const auctions = await Auction.find({status: "active"}).populate(
+        "creator",
+        "userName",
+      );
+      io.emit("auctionsList", auctions);
+      io.emit("bidPlaced", {
+        auctionId,
+        currentBid: amount,
+        userId,
+        message: "Bid placed successfully",
+      });
+    } catch (error) {
+      console.error("Error placing bid:", error);
+      socket.emit("bidError", "Server error while placing bid");
+    }
+  });
+  // ===============================
   socket.on("register", async (data) => {
-    const { username, email, password } = data;
+    const {username, email, password} = data;
     console.log("===--- register ---====", email, password, username);
     if (!email || !password || !username) {
       socket.emit("registrationError", {
@@ -178,7 +249,7 @@ io.on("connection", (socket) => {
       return;
     }
     try {
-      const existingUser = await User.findOne({ email });
+      const existingUser = await User.findOne({email});
       if (existingUser) {
         socket.emit("registrationError", {
           message: "The user with this email already exists.",
@@ -211,7 +282,7 @@ io.on("connection", (socket) => {
   // ===============================
   const downloadAvatarAsBase64 = async (url) => {
     try {
-      const response = await axios.get(url, { responseType: "arraybuffer" });
+      const response = await axios.get(url, {responseType: "arraybuffer"});
       return `data:image/jpeg;base64,${Buffer.from(response.data).toString(
         "base64",
       )}`;
@@ -221,9 +292,9 @@ io.on("connection", (socket) => {
     }
   };
   socket.on("googleRegister", async (data) => {
-    const { token } = data;
+    const {token} = data;
     if (!token) {
-      socket.emit("registrationError", { message: "Token is required." });
+      socket.emit("registrationError", {message: "Token is required."});
       return;
     }
     try {
@@ -236,7 +307,7 @@ io.on("connection", (socket) => {
       const userName = payload.name;
       const googleId = payload.sub;
       const avatarUrl = payload.picture || null;
-      let user = await User.findOne({ email });
+      let user = await User.findOne({email});
       if (user) {
         if (!user.googleId) {
           user.googleId = googleId;
@@ -265,7 +336,7 @@ io.on("connection", (socket) => {
   });
   // ===================================
   socket.on("setPassword", async (data) => {
-    const { email, password, userName, googleId, avatarUrl } = data;
+    const {email, password, userName, googleId, avatarUrl} = data;
     if (!email || !password) {
       socket.emit("registrationError", {
         message: "Email and password are required.",
@@ -273,9 +344,9 @@ io.on("connection", (socket) => {
       return;
     }
     try {
-      const existingUser = await User.findOne({ email });
+      const existingUser = await User.findOne({email});
       if (existingUser) {
-        socket.emit("registrationError", { message: "User already exists." });
+        socket.emit("registrationError", {message: "User already exists."});
         return;
       }
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -292,12 +363,12 @@ io.on("connection", (socket) => {
       });
       await newUser.save();
       console.log("User saved to DB:", newUser); // Проверяем, что сохранилось
-      const savedUser = await User.findOne({ email });
+      const savedUser = await User.findOne({email});
       console.log("User from DB:", savedUser); // Проверяем, что реально в базе
       const jwtToken = jwt.sign(
-        { userId: newUser._id, email: newUser.email },
+        {userId: newUser._id, email: newUser.email},
         process.env.JWT_SECRET,
-        { expiresIn: "10h" },
+        {expiresIn: "10h"},
       );
       socket.emit("googleRegisterSuccess", {
         message: "Registration successful!",
@@ -306,12 +377,12 @@ io.on("connection", (socket) => {
       });
     } catch (error) {
       console.error("Error setting password:", error);
-      socket.emit("registrationError", { message: "Error setting password." });
+      socket.emit("registrationError", {message: "Error setting password."});
     }
   });
   // ===============================
   socket.on("login", async (data) => {
-    const { email, password } = data;
+    const {email, password} = data;
     console.log("===--- login ---====", email, password);
     if (!email || !password) {
       socket.emit("loginError", {
@@ -320,7 +391,7 @@ io.on("connection", (socket) => {
       return;
     }
     try {
-      const existingUser = await User.findOne({ email });
+      const existingUser = await User.findOne({email});
       if (!existingUser) {
         socket.emit("loginError", {
           message: "User with this email does not exist.",
@@ -340,9 +411,9 @@ io.on("connection", (socket) => {
       }
       // Генерация JWT токена
       const token = jwt.sign(
-        { userId: existingUser._id, email: existingUser.email },
+        {userId: existingUser._id, email: existingUser.email},
         process.env.JWT_SECRET, // Это должен быть ваш секретный ключ
-        { expiresIn: "10h" }, // Срок действия токена — 10 час
+        {expiresIn: "10h"}, // Срок действия токена — 10 час
       );
       socket.emit("loginSuccess", {
         message: "Login successful!",
@@ -359,9 +430,9 @@ io.on("connection", (socket) => {
     }
   });
   socket.on("googleLogin", async (data) => {
-    const { token } = data; // Получаем токен от клиента
+    const {token} = data; // Получаем токен от клиента
     if (!token) {
-      socket.emit("loginError", { message: "Token is required." });
+      socket.emit("loginError", {message: "Token is required."});
       return;
     }
     try {
@@ -376,7 +447,7 @@ io.on("connection", (socket) => {
       const googleId = payload.sub;
       const avatarUrl = payload.picture || null; // Получаем URL аватара
       // Проверка, существует ли пользователь в базе данных
-      let user = await User.findOne({ email });
+      let user = await User.findOne({email});
       if (!user) {
         // Если пользователь не существует, создаем нового
         let avatarBase64 = null;
@@ -404,9 +475,9 @@ io.on("connection", (socket) => {
       }
       // Генерация JWT токена для аутентификации пользователя
       const jwtToken = jwt.sign(
-        { userId: user._id, email: user.email },
+        {userId: user._id, email: user.email},
         process.env.JWT_SECRET,
-        { expiresIn: "10h" },
+        {expiresIn: "10h"},
       );
       console.log("===--- googleLogin ---====", user, jwtToken);
       // Отправка успешного ответа с данными пользователя и JWT токеном

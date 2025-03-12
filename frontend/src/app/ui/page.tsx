@@ -9,8 +9,6 @@ import InputRadio from "@/components/ui/InputRadio/InputRadio";
 import Select from "@/components/ui/Select/Select";
 import Calendar from "@/components/ui/Calendar/Calendar";
 import ClockUhr from "@/components/ui/ClockUhr/ClockUhr";
-import ClockPicker from "@/components/ClockPicker/ClockPicker";
-
 // =======================
 
 // =======================
