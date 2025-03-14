@@ -6,19 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="613e6e12-f52a-4337-ae3e-fb4abf043cb9" name="Changes" comment="webstorm+optim">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/models/Auction.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/models/Auction.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/backend/server.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/auctions/Auctions.module.scss" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/auctions/Auctions.module.scss" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/auctions/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/auctions/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/loginPage/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/loginPage/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/registerPage/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/registerPage/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/ui/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/ui/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/AddAuctionForm/AddAuctionForm.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/AddAuctionForm/AddAuctionForm.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/Lot/Lot.module.scss" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Lot/Lot.module.scss" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/Lot/Lot.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/Lot/Lot.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/ui/Select/Select.module.scss" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/ui/Select/Select.module.scss" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/ui/Select/Select.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/ui/Select/Select.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,7 +55,7 @@
     "com.codeium.enabled": "true",
     "git-widget-placeholder": "main",
     "ignore.virus.scanning.warn.message": "true",
-    "last_opened_file_path": "D:/WEB/NextTSTailwindExpressNodeMongoDBSocketDocker/backend/package.json",
+    "last_opened_file_path": "D:/WEB/Infomatic",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",

@@ -7,6 +7,7 @@ interface Auction {
   endTime: string;
   imageUrl: string;
   status?: string;
+  winner?: { user: string; amount: number };
 }
 
 interface AuctionsState {
@@ -23,6 +24,21 @@ const auctionsSlice = createSlice({
   reducers: {
     setAuctions(state, action: PayloadAction<Auction[]>) {
       state.auctions = action.payload;
+    },
+    updateStatus: (
+      state,
+      action: PayloadAction<{
+        id: string;
+        status: string;
+        winner?: { user: string; amount: number };
+      }>
+    ) => {
+      const { id, status, winner } = action.payload; // Извлекаем winner
+      const auction = state.auctions.find((a) => a._id === id);
+      if (auction) {
+        auction.status = status;
+        if (winner) auction.winner = winner; // Теперь winner определён
+      }
     },
   },
 });
