@@ -57,6 +57,12 @@ const Auctions: React.FC = () => {
   >("none");
   const [closedAuction, setClosedAuction] = useState<Auction | null>(null);
   // ---------------------
+  useEffect(() => {
+    console.log("<====auctions====>", auctions);
+    console.log("<====tempAuctions====>", tempAuctions);
+  }, [auctions, tempAuctions]);
+
+  // ---------------------
   const isAuctionActive = (auction: Auction) => {
     const now = new Date();
     const endTime = new Date(auction.endTime);
@@ -70,28 +76,73 @@ const Auctions: React.FC = () => {
         auctionId: string;
         winner?: { user: string; amount: number };
       }) => {
-        dispatch(
-          updateAuctionStatus({
-            id: data.auctionId,
-            status: "ended",
-            winner: data.winner,
-          })
-        );
-        console.log("<====winner====>", data.winner.user, data.winner.amount);
-        const endedAuction = auctions.find((a) => a._id === data.auctionId);
-        if (endedAuction) {
-          setClosedAuction({
-            ...endedAuction,
-            status: "ended",
-            winner: data.winner.user,
-          });
+        if (auctions) {
+          dispatch(
+            updateAuctionStatus({
+              id: data.auctionId,
+              status: "ended",
+              winner: data.winner,
+            })
+          );
+          console.log(
+            "<====winner====>",
+            data.winner?.user,
+            data.winner?.amount
+          );
+          console.log("<====auctions====>", auctions);
+          console.log("<====data.auctionId====>", data.auctionId);
+          const endedAuction = auctions.filter(
+            (a) => a._id?.toString() === data.auctionId.toString()
+          );
+          console.log("<====endedAuction====>", endedAuction);
+          console.log("<====endedAuction.title====>", endedAuction[0].title);
+          if (endedAuction) {
+            setClosedAuction({
+              title: endedAuction[0].title,
+              winner: data.winner?.user,
+              amount: data.winner?.amount,
+            });
+          }
         }
       }
     );
     return () => {
       socket?.off("auctionClosed");
     };
-  }, [dispatch, socket]);
+  }, [dispatch, socket, auctions]);
+
+  useEffect(() => {
+    console.log("<====auctions====>", auctions);
+    console.log("<====closedAuction====>", closedAuction);
+  }, [closedAuction, auctions]);
+
+  // useEffect(() => {
+  //   if (!socket) return; // Ждем, пока socket будет готов
+  //   const handleAuctionClosed = (data: {
+  //     auctionId: string;
+  //     winner?: { user: string; amount: number };
+  //   }) => {
+  //     dispatch(
+  //       updateAuctionStatus({
+  //         id: data.auctionId,
+  //         status: "ended",
+  //         winner: data.winner,
+  //       })
+  //     );
+  //     const endedAuction = auctions.find((a) => a._id === data.auctionId);
+  //     if (endedAuction) {
+  //       setClosedAuction({
+  //         ...endedAuction,
+  //         status: "ended",
+  //         winner: data.winner?.user,
+  //       });
+  //     }
+  //   };
+  //   socket.on("auctionClosed", handleAuctionClosed);
+  //   return () => {
+  //     socket.off("auctionClosed", handleAuctionClosed);
+  //   };
+  // }, [dispatch, socket, auctions]);
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const itemsPerPage = 5;

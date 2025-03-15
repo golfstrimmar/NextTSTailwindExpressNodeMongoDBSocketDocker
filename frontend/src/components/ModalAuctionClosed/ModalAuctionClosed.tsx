@@ -1,12 +1,12 @@
 // components/ModalAuctionClosed.tsx
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import styles from "./ModalAuctionClosed.module.scss";
 interface ModalAuctionClosedProps {
   auction: {
-    _id: string;
-    title: string;
-    winner?: { user: string; amount: number };
+    title?: string;
+    winner?: string;
+    amount?: number;
   };
   onClose: () => void;
 }
@@ -15,6 +15,9 @@ const ModalAuctionClosed: React.FC<ModalAuctionClosedProps> = ({
   auction,
   onClose,
 }) => {
+  useEffect(() => {
+    console.log("<====auction====>", auction);
+  }, [auction]);
   return (
     <div className="bg-black bg-opacity-40 flex justify-center items-center fixed inset-0 z-500">
       <div className="bg-white p-4 rounded">
@@ -23,10 +26,15 @@ const ModalAuctionClosed: React.FC<ModalAuctionClosedProps> = ({
           Auction: <strong>{auction.title}</strong>
         </p>
         {auction.winner ? (
-          <p className="mt-2">
-            Winner: <strong>{auction.winner.user}</strong> with bid:{" "}
-            <strong>${auction.winner.amount}</strong>
-          </p>
+          <>
+            <p className="mt-2">
+              Winner: <strong>{auction.winner}</strong>
+            </p>
+
+            <p className="mt-2">
+              with bid: <strong>${auction.amount}</strong>
+            </p>
+          </>
         ) : (
           <p className="mt-2">No winner - no bids were placed.</p>
         )}

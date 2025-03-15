@@ -124,13 +124,16 @@ const Profile: React.FC = () => {
                     Created Auctions:
                   </label>
                   {profileData.createdAuctions.length > 0 ? (
-                    <ul className="flex flex-col">
+                    <ul className="">
                       {profileData.createdAuctions.map((auction) => (
-                        <li key={auction._id} className="relative inline-block">
-                          <Link href={`/auctions/${auction._id}`}>
+                        <li key={auction._id} className="relative pl-4">
+                          <Link
+                            href={`/auctions/${auction._id}`}
+                            className="relative"
+                          >
                             Title: {auction.title}, status: ({auction.status})
                           </Link>
-                          <Click className="w-3 h-3 absolute top-[50%] right-[-20px] transform translate-y-[-50%]" />
+                          <Click className="w-3 h-3 absolute top-[50%] left-[0px] transform translate-y-[-50%]" />
                         </li>
                       ))}
                     </ul>
@@ -145,14 +148,14 @@ const Profile: React.FC = () => {
                   </label>
 
                   {profileData.auctionsWithBids.length > 0 ? (
-                    <ul className="flex flex-col">
+                    <ul className="">
                       {profileData.auctionsWithBids.map((auction) => (
-                        <li key={auction._id} className="">
+                        <li key={auction._id} className="relative pl-4">
                           <Link href={`/auctions/${auction._id}`} className="">
                             Title: {auction.title} - Current Bid: $
                             {auction.currentBid || "No bids yet"}
                           </Link>
-                          <Click className="w-3 h-3 absolute top-[50%] right-[-20px] transform translate-y-[-50%]" />
+                          <Click className="w-3 h-3 absolute top-[50%] left-[0px] transform translate-y-[-50%]" />
                         </li>
                       ))}
                     </ul>
@@ -166,12 +169,12 @@ const Profile: React.FC = () => {
                   {profileData.wonAuctions.length > 0 ? (
                     <ul className="flex flex-col">
                       {profileData.wonAuctions.map((auction) => (
-                        <li key={auction._id} className="relative ">
-                          <Link href={`/auctions/${auction._id}`} className="">
+                        <li key={auction._id} className="relative pl-4">
+                          <Link href={`/auctions/${auction._id}`}>
                             Title: {auction.title} - Won for $
                             {auction.winner?.amount}
                           </Link>
-                          <Click className="w-3 h-3 absolute top-[50%] right-[-20px] transform translate-y-[-50%]" />
+                          <Click className="w-3 h-3 absolute top-[50%] left-[0px] transform translate-y-[-50%]" />
                         </li>
                       ))}
                     </ul>

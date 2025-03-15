@@ -11,6 +11,7 @@ import ModalMessage from "@/components/ModalMessage/ModalMessage";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, useAppSelector } from "@/app/redux/store";
 import { useRouter } from "next/navigation";
+import { setAuctions } from "@/app/redux/slices/auctionsSlice";
 // =================================
 
 // =================================
@@ -237,6 +238,10 @@ const AddAuctionForm: React.FC = () => {
       if (socket && token) {
         console.log("Sending auction data with token:", { auctionData, token });
         socket.emit("addAuction", { auctionData, token }); // Добавляем токен
+        socket.on("auctionsList", (auctions) => {
+          console.log("Received auctions:", auctions);
+          dispatch(setAuctions(auctions));
+        });
       }
     } catch (error) {
       console.error("Ошибка загрузки изображения:", error);

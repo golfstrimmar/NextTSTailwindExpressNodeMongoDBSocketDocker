@@ -112,6 +112,7 @@ io.on("connection", (socket) => {
   console.log(`Client connected: ${socket.id}`);
 
   socket.on("getAuctions", async () => {
+    console.log("<====getAuctions====>");
     const auctions = await Auction.find({ status: "active" }).populate(
       "creator",
       "userName"

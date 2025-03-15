@@ -8,7 +8,7 @@ export default (io, socket) => {
       const auction = await Auction.findById(auctionId).populate(
         "bids.user",
         "userName"
-      ); // Популяция user в bids
+      );
       if (!auction || auction.status !== "active") return;
 
       let winner = null;
@@ -24,7 +24,7 @@ export default (io, socket) => {
           status: "ended",
           ...(winner && {
             winner: { user: winner.user._id, amount: winner.amount },
-          }), // Сохраняем _id в базе
+          }),
         }
       );
 
@@ -37,11 +37,32 @@ export default (io, socket) => {
         auctionId: auction._id,
         winner: winner
           ? { user: winner.user.userName, amount: winner.amount }
-          : null, // Отправляем userName клиенту
+          : null,
       });
     } catch (error) {
       console.error("Error closing auction:", error);
     }
+  };
+  // Функция для установки таймера с поддержкой дальних дат
+  const setAuctionTimer = (auctionId, endTime) => {
+    const MAX_DELAY = 2147483647; // Максимальная задержка setTimeout (~24.8 дня)
+
+    const checkAndCloseAuction = () => {
+      const now = new Date();
+      const timeLeft = new Date(endTime) - now;
+
+      if (timeLeft <= 0) {
+        closeAuction(auctionId); // Завершаем аукцион, если время вышло
+      } else if (timeLeft > MAX_DELAY) {
+        // Промежуточный таймер для больших интервалов
+        setTimeout(checkAndCloseAuction, MAX_DELAY);
+      } else {
+        // Точный таймер для оставшегося времени
+        setTimeout(() => closeAuction(auctionId), timeLeft);
+      }
+    };
+
+    checkAndCloseAuction(); // Начинаем проверку сразу
   };
 
   // Восстановление таймеров при старте сервера
@@ -53,7 +74,7 @@ export default (io, socket) => {
       for (const auction of activeAuctions) {
         const timeLeft = new Date(auction.endTime) - now;
         if (timeLeft > 0) {
-          setTimeout(() => closeAuction(auction._id), timeLeft);
+          setAuctionTimer(auction._id, auction.endTime);
           console.log(
             `Restored timer for auction ${auction._id}, time left: ${timeLeft}ms`
           );
@@ -70,21 +91,23 @@ export default (io, socket) => {
   socket.on("addAuction", async (payload) => {
     console.log("===Adding new auction:====", payload);
     const { auctionData, token } = payload;
-    const data = auctionData || payload; // На случай, если структура отличается
+    const data = auctionData || payload; // Совместимость со старой структурой
     console.log("===Extracted data:====", data);
 
-    // Проверяем токен
+    // Проверка наличия токена
     if (!token) {
       console.log("===Validation error:====", "Token is required");
       return io.emit("erroraddingauction", "Authentication required");
     }
 
+    // Проверка и декодирование токена
     let creatorId;
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       creatorId = decoded.userId;
       const creator = await User.findById(creatorId);
       console.log("=====creator=====", creator);
+
       if (!creator) {
         console.log("===Validation error:====", "User not found");
         return io.emit("erroraddingauction", "User not found");
@@ -94,6 +117,7 @@ export default (io, socket) => {
       return io.emit("erroraddingauction", "Invalid token");
     }
 
+    // Подготовка данных аукциона
     const sanitizedData = {
       title: String(data.title),
       startPrice: Number(data.startPrice),
@@ -105,6 +129,7 @@ export default (io, socket) => {
     };
 
     try {
+      // Проверка на существующий аукцион
       const existingAuction = await Auction.findOne({
         title: sanitizedData.title,
         status: "active",
@@ -115,22 +140,26 @@ export default (io, socket) => {
         return io.emit("erroraddingauction", errorMessage);
       }
 
+      // Создание и сохранение нового аукциона
       const newAuction = new Auction(sanitizedData);
       console.log("===New auction instance:====", newAuction);
       await newAuction.save();
       console.log("===Auction saved:====", newAuction);
 
-      // Устанавливаем таймер для завершения
-      const timeLeft = new Date(newAuction.endTime) - new Date();
+      // Установка таймера завершения аукциона
+      const now = new Date();
+      const timeLeft = new Date(newAuction.endTime) - now;
       if (timeLeft > 0) {
-        setTimeout(() => closeAuction(newAuction._id), timeLeft);
+        setAuctionTimer(newAuction._id, newAuction.endTime);
         console.log(
           `Timer set for auction ${newAuction._id}, time left: ${timeLeft}ms`
         );
       } else {
-        closeAuction(newAuction._id); // Если аукцион уже просрочен
+        console.log(`Auction ${newAuction._id} already expired on creation`);
+        await closeAuction(newAuction._id);
       }
 
+      // Отправка обновленного списка аукционов
       const auctions = await Auction.find({ status: "active" }).populate(
         "creator",
         "userName"
@@ -140,7 +169,7 @@ export default (io, socket) => {
       io.emit("auctionAdded", { message: "Auction added successfully" });
     } catch (error) {
       console.error("Error adding auction:", error);
-      io.emit("erroraddingauction", error.message);
+      io.emit("erroraddingauction", error.message || "Failed to add auction");
     }
   });
 };
