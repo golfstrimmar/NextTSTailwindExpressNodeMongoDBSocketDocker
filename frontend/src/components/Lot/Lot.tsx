@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "./Lot.module.scss";
 import { useSelector } from "react-redux";
+import Link from "next/link";
 // =================================
 
 // =================================
@@ -26,6 +27,36 @@ const Lot: React.FC<LotProps> = ({ auction }) => {
   const [bidAmount, setBidAmount] = useState<number | "">(""); // Значение ставки
   const [error, setError] = useState<string | null>(null); // Ошибка от сервера
   const socket = useSelector((state: any) => state.socket.socket);
+  const [timeLeft, setTimeLeft] = useState<string>("");
+  // =================================
+  useEffect(() => {
+    const updateTimer = () => {
+      const now = new Date();
+      const end = new Date(auction.endTime);
+      const diff = end.getTime() - now.getTime();
+
+      if (diff <= 0) {
+        setTimeLeft("Ended");
+      } else {
+        const days = Math.floor(diff / 86400000); // Days: 1 day = 86400000 ms
+        const hours = Math.floor((diff % 86400000) / 3600000); // Hours: remainder from days
+        const minutes = Math.floor((diff % 3600000) / 60000); // Minutes: remainder from hours
+        const seconds = Math.floor((diff % 60000) / 1000); // Seconds: remainder from minutes
+
+        let timeString = "";
+        if (days > 0) timeString += `${days} d/`;
+        if (hours > 0 || days > 0) timeString += `${hours} h/`;
+        timeString += `${minutes} m/`;
+        timeString += `${seconds} s`;
+        setTimeLeft(timeString.trim());
+      }
+    };
+
+    updateTimer(); // Initial call
+    const interval = setInterval(updateTimer, 1000); // Update every second
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, [auction.endTime]);
 
   // =================================
   useEffect(() => {
@@ -93,7 +124,7 @@ const Lot: React.FC<LotProps> = ({ auction }) => {
   return (
     <li
       key={auction._id}
-      className="bg-white shadow-md rounded-xl p-6 flex gap-6 hover:shadow-lg transition-shadow duration-300  flex-col md:flex-row md:items-center "
+      className="bg-white shadow-[0_0_8px_rgba(0,0,0,0.2)] rounded-xl p-6 flex flex-col gap-6 hover:shadow-lg transition-shadow duration-300   md:flex-row md:items-center min-w-[410px] "
     >
       {/* Модальное окно */}
       {isModalOpen && (
@@ -134,59 +165,49 @@ const Lot: React.FC<LotProps> = ({ auction }) => {
         </div>
       )}
       {auction.imageUrl ? (
-        <img
-          src={auction.imageUrl}
-          alt={auction.title}
-          className="w-40 h-40 object-cover rounded-lg hover:scale-105 transition-transform duration-200 cursor-pointer"
-        />
+        <Link href={`/auctions/${auction._id}`}>
+          <img
+            src={auction.imageUrl}
+            alt={auction.title}
+            className="w-40 h-40 object-cover rounded-lg hover:scale-105 transition-transform duration-200 cursor-pointer"
+          />
+        </Link>
       ) : (
         <div className="w-40 h-40 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500">
           No Image
         </div>
       )}
       <div className="flex-1 flex flex-col justify-between">
-        {/*<div>*/}
-        {/*    <div>*/}
-        {/*        <h2 className="text-2xl font-bold text-gray-800 mb-2">*/}
-        {/*            {auction.title}*/}
-        {/*        </h2>*/}
-        {/*        <p className="text-lg text-gray-600">*/}
-        {/*            Start Price: ${auction.startPrice}*/}
-        {/*        </p>*/}
-        {/*        <p className="text-sm text-gray-600 mt-1">*/}
-        {/*            Ends: {new Date(auction.endTime).toLocaleString()}*/}
-        {/*        </p>*/}
-        {/*        <p className="text-sm text-gray-500">Status: {auction.status}</p>*/}
-        {/*        <p className="text-sm text-gray-500">*/}
-        {/*            Creator: {auction.creator?.userName || "Unknown"}*/}
-        {/*        </p>*/}
-        {/*        <p className="text-sm text-gray-400 mt-1">*/}
-        {/*            Created: {new Date(auction.createdAt).toLocaleDateString()}*/}
-        {/*        </p>*/}
-        {/*    </div>*/}
-        {/*</div>*/}
         <div className="flex-1 flex flex-col justify-between">
           <div>
             <div>
               <h2 className="text-2xl font-bold text-gray-800 mb-2">
                 {auction.title}
               </h2>
-              <p className="text-lg text-gray-600">
+              <p className="text-sm text-gray-500">
                 Start Price: ${auction.startPrice}
               </p>
               {auction.currentBid && (
-                <p className="text-lg text-gray-600">
+                <p className="text-sm text-gray-500">
                   Current Bid: ${auction.currentBid}
                 </p>
               )}
-              <p className="text-sm text-gray-600 mt-1">
-                Ends: {new Date(auction.endTime).toLocaleString()}
-              </p>
+              <div className="text-sm text-gray-600 ">
+                Ends:
+                <p>{new Date(auction.endTime).toLocaleString()}</p>
+              </div>
+              <div className="text-sm text-gray-500">
+                Time Left:
+                <p>{timeLeft}</p>
+              </div>
               <p className="text-sm text-gray-500">Status: {auction.status}</p>
               <p className="text-sm text-gray-500">
-                Creator: {auction.creator?.userName || "Unknown"}
+                Creator:
+                <span className="ml-[5px]">
+                  {auction.creator.userName || "Unknown"}
+                </span>
               </p>
-              <p className="text-sm text-gray-400 mt-1">
+              <p className="text-sm text-gray-500">
                 Created: {new Date(auction.createdAt).toLocaleDateString()}
               </p>
             </div>

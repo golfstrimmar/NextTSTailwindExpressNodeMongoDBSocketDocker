@@ -16,6 +16,8 @@ import auctionPlaceBid from "./components/auctionPlaceBid.js";
 import registerHandler from "./components/registerHandler.js";
 import handlerSetPassword from "./components/handlerSetPassword.js";
 import handlerLogin from "./components/handlerLogin.js";
+import auctionDetales from "./components/auctionDetales.js";
+import profileHandler from "./components/profileHandler.js";
 
 dotenv.config();
 const app = express();
@@ -83,14 +85,14 @@ app.get("/auth/google/callback", async (req, res) => {
   }
 });
 
-app.get("/api/auctions", async (req, res) => {
-  try {
-    const auctions = await Auction.find({ status: "active" });
-    res.json(auctions);
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
-  }
-});
+// app.get("/api/auctions", async (req, res) => {
+//   try {
+//     const auctions = await Auction.find({ status: "active" });
+//     res.json(auctions);
+//   } catch (error) {
+//     res.status(500).json({ message: "Server error" });
+//   }
+// });
 
 const downloadAvatarAsBase64 = async (url) => {
   try {
@@ -104,50 +106,16 @@ const downloadAvatarAsBase64 = async (url) => {
   }
 };
 
-// Логика закрытия аукциона и определения победителя (вынесена из io.on)
-setInterval(async () => {
-  const now = new Date();
-  const activeAuctions = await Auction.find({ status: "active" });
-
-  for (const auction of activeAuctions) {
-    console.log(
-      `Checking auction ${auction._id}, endTime: ${auction.endTime}, now: ${now}`
-    );
-    if (new Date(auction.endTime) <= now) {
-      let winner = null;
-      if (auction.bids && auction.bids.length > 0) {
-        winner = auction.bids.reduce((maxBid, bid) =>
-          bid.amount > maxBid.amount ? bid : maxBid
-        );
-      }
-
-      await Auction.updateOne(
-        { _id: auction._id },
-        {
-          status: "ended",
-          ...(winner && {
-            winner: { user: winner.user, amount: winner.amount },
-          }),
-        }
-      );
-
-      console.log(`Emitting auctionClosed for ${auction._id}`);
-      io.emit("auctionClosed", {
-        auctionId: auction._id,
-        winner: winner ? { user: winner.user, amount: winner.amount } : null,
-      });
-      console.log(
-        `Auction ${auction._id} ended. Winner: ${winner ? winner.user : "None"}`
-      );
-    }
-  }
-}, 1000);
+// ======================================
 
 io.on("connection", (socket) => {
   console.log(`Client connected: ${socket.id}`);
 
   socket.on("getAuctions", async () => {
-    const auctions = await Auction.find({ status: "active" });
+    const auctions = await Auction.find({ status: "active" }).populate(
+      "creator",
+      "userName"
+    );
     socket.emit("auctionsList", auctions);
   });
 
@@ -156,7 +124,8 @@ io.on("connection", (socket) => {
   registerHandler(io, socket);
   handlerSetPassword(io, socket);
   handlerLogin(io, socket);
-
+  auctionDetales(io, socket);
+  profileHandler(io, socket);
   socket.on("googleRegister", async (data) => {
     const { token } = data;
     if (!token) {

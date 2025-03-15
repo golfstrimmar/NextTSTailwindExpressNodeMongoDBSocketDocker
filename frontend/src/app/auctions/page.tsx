@@ -6,6 +6,7 @@ import Lot from "@/components/Lot/Lot";
 import Select from "@/components/ui/Select/Select";
 import Pagination from "@/components/Pagination/Pagination";
 import { useSelector } from "react-redux";
+import ModalAuctionClosed from "@/components/ModalAuctionClosed/ModalAuctionClosed";
 
 interface Auction {
   _id: string;
@@ -54,7 +55,8 @@ const Auctions: React.FC = () => {
   const [activeSortType, setActiveSortType] = useState<
     "createdAt" | "endTime" | "none"
   >("none");
-
+  const [closedAuction, setClosedAuction] = useState<Auction | null>(null);
+  // ---------------------
   const isAuctionActive = (auction: Auction) => {
     const now = new Date();
     const endTime = new Date(auction.endTime);
@@ -75,6 +77,15 @@ const Auctions: React.FC = () => {
             winner: data.winner,
           })
         );
+        console.log("<====winner====>", data.winner.user, data.winner.amount);
+        const endedAuction = auctions.find((a) => a._id === data.auctionId);
+        if (endedAuction) {
+          setClosedAuction({
+            ...endedAuction,
+            status: "ended",
+            winner: data.winner.user,
+          });
+        }
       }
     );
     return () => {
@@ -145,6 +156,10 @@ const Auctions: React.FC = () => {
     setActiveSortType(value ? "endTime" : "none");
   };
 
+  const closeModal = () => {
+    setClosedAuction(null);
+  };
+
   return (
     <div>
       <h1 className="text-3xl font-semibold italic text-gray-800 text-center">
@@ -169,7 +184,7 @@ const Auctions: React.FC = () => {
         </div>
       ) : null}
 
-      <ul className="mt-4 grid md:grid-cols-[repeat(auto-fill,minmax(410px,1fr))] gap-4 justify-items-center">
+      <ul className="mt-4 grid md:grid-cols-[repeat(auto-fill,minmax(410px,1fr))] gap-4  justify-center">
         {currentAuctions.length > 0 ? (
           currentAuctions.map((auction) => (
             <Lot key={auction._id} auction={auction} />
@@ -180,7 +195,9 @@ const Auctions: React.FC = () => {
           </p>
         )}
       </ul>
-
+      {closedAuction && (
+        <ModalAuctionClosed auction={closedAuction} onClose={closeModal} />
+      )}
       {currentAuctions.length > 0 && (
         <Pagination
           items={tempAuctions}

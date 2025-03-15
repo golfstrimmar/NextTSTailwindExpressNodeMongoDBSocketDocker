@@ -33,7 +33,7 @@ const auctionsSlice = createSlice({
         winner?: { user: string; amount: number };
       }>
     ) => {
-      const { id, status, winner } = action.payload; // Извлекаем winner
+      const { id, status, winner } = action.payload; 
       const auction = state.auctions.find((a) => a._id === id);
       if (auction) {
         auction.status = status;

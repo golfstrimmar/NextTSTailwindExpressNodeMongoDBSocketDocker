@@ -1,5 +1,5 @@
 "use client";
-import AddAuctionForm from "@/components/AddAuctionForm/AddAuctionForm";
+import AddAuctionForm from "@/app/addAuctionForm/page";
 import React, { useState, useEffect } from "react";
 
 const AddAuction: React.FC = () => {

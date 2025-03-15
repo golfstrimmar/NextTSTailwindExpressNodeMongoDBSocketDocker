@@ -70,7 +70,7 @@ const Navbar: React.FC = () => {
             <>
               <li>
                 <Link
-                  href="/auctions/new"
+                  href="/addAuctionForm"
                   className="text-white hover:text-gray-300"
                   onClick={() => setIsOpen(false)}
                 >
@@ -78,13 +78,19 @@ const Navbar: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/profile"
-                  className="text-white hover:text-gray-300"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Profile
-                </Link>
+                {user && user.userName ? (
+                  <div className="text-white hover:text-gray-300">
+                    <Link
+                      href="/profile"
+                      className="text-white hover:text-gray-300"
+                      onClick={() => setIsOpen(false)}
+                    >
+                      <p>Hallo, {user.userName} !</p>
+                    </Link>
+                  </div>
+                ) : (
+                  ""
+                )}
               </li>
             </>
           ) : (
@@ -109,16 +115,6 @@ const Navbar: React.FC = () => {
               </li>
             </>
           )}
-
-          <li>
-            <Link
-              href="/ui"
-              className="text-white hover:text-gray-300"
-              onClick={() => setIsOpen(false)}
-            >
-              UI
-            </Link>
-          </li>
           {user ? (
             <button
               onClick={handleLogout}
@@ -129,6 +125,15 @@ const Navbar: React.FC = () => {
           ) : (
             ""
           )}
+          <li>
+            <Link
+              href="/ui"
+              className="text-white hover:text-gray-300"
+              onClick={() => setIsOpen(false)}
+            >
+              UI kit
+            </Link>
+          </li>
         </ul>
       </div>
     </nav>
